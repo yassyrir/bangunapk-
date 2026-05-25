@@ -1,7 +1,11 @@
 name: Ekstrak Zip Otomatis
 
 on:
-  workflow_dispatch: # Fitur ini agar Anda bisa menjalankan tombol "Run" secara manual
+  workflow_dispatch:
+
+# JALUR UTAMA UNTUK MEMBERI IZIN PUSH KODE
+permissions:
+  contents: write
 
 jobs:
   unzip-file:
@@ -12,16 +16,20 @@ jobs:
 
       - name: Ekstrak proyek.zip
         run: |
-          # Mengekstrak proyek.zip ke folder utama repositori
-          unzip proyek.zip -d .
-          
-          # Opsional: Hapus file zip asli setelah diekstrak agar repositori bersih
-          rm proyek.zip
+          # Cek apakah file benar-benar ada sebelum diekstrak
+          if [ -f "proyek.zip" ]; then
+            unzip -o proyek.zip -d .
+            rm proyek.zip
+          else
+            echo "File proyek.zip tidak ditemukan!"
+            exit 1
+          fi
 
       - name: Commit dan Push Perubahan
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Ekstrak proyek.zip otomatis lewat GitHub Actions"
+          # Menggunakan kondisi agar tidak error jika tidak ada perubahan baru
+          git diff-index --quiet HEAD || git commit -m "Ekstrak proyek.zip otomatis"
           git push
