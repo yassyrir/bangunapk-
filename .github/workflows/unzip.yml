@@ -1,0 +1,27 @@
+name: Ekstrak Zip Otomatis
+
+on:
+  workflow_dispatch: # Fitur ini agar Anda bisa menjalankan tombol "Run" secara manual
+
+jobs:
+  unzip-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Ekstrak proyek.zip
+        run: |
+          # Mengekstrak proyek.zip ke folder utama repositori
+          unzip proyek.zip -d .
+          
+          # Opsional: Hapus file zip asli setelah diekstrak agar repositori bersih
+          rm proyek.zip
+
+      - name: Commit dan Push Perubahan
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Ekstrak proyek.zip otomatis lewat GitHub Actions"
+          git push
